@@ -26,12 +26,12 @@ platform :android do
 
   desc "Send Debug Stage app to Crashlytics Beta"
   lane :deploy do
-    version_number = sh("git describe --tags --exact-match")
-    version_number.delete!("\n")
+    tag = sh("git describe --tags --exact-match")
+    tag.delete!("\n")
     sh("find .. -name 'build.gradle' -exec ./update_version.sh {} \\;")
-    puts version_number
-    puts version_number
-    add_git_tag(tag: "v#{version_number}")
+    sh("git push --delete origin #{tag}")
+    sh("git tag --delete #{tag}")
+    add_git_tag(tag: "v#{tag}")
     git_commit(path: "**/build.gradle", message: "Increase build number")
     push_to_git_remote
     
