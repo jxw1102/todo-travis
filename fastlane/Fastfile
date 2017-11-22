@@ -17,21 +17,26 @@ platform :android do
   end
 
   after_all do |lane|
-    slack(message: "Successfully executed lane #{lane}")
+    
   end
 
   error do |lane, exception|
-    slack(message: exception.message, success: false)
+    
   end
 
   desc "Send Debug Stage app to Crashlytics Beta"
   lane :deploy do
+    version_number = sh("git describe --tags --exact-match")
     sh("find .. -name 'build.gradle' -exec ./update_version.sh {} \;")
-    gradle(task: 'app:assembleProdRelease')
-    supply(
-      track: 'rollout', 
-      rollout: '0.5', 
-      apk: 'app/build/outputs/apk/prod/release/app-prod-release.apk')
+    add_git_tag(tag: "v#{version_number}")
+    git_commit(path: "../**/build.gradle", message: "Increase build number")
+    push_to_git_remote
+    
+    # gradle(task: 'app:assembleProdRelease')
+    # supply(
+    #   track: 'rollout',
+    #   rollout: '0.5',
+    #   apk: 'app/build/outputs/apk/prod/release/app-prod-release.apk')
   end
 
   desc "Upload to Google Play Beta"
