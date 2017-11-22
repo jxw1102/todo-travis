@@ -31,8 +31,8 @@ platform :android do
     sh("find .. -name 'build.gradle' -exec ./update_version.sh {} \\;")
     sh("git push --delete origin #{tag}")
     sh("git tag --delete #{tag}")
-    add_git_tag(tag: "v#{tag}")
     git_commit(path: "**/build.gradle", message: "Increase build number")
+    add_git_tag(tag: "v#{tag}")
     push_to_git_remote
     
     # gradle(task: 'app:assembleProdRelease')
